@@ -35,7 +35,7 @@
             android:textSize="16sp" />
 
         <SeekBar
-            android:id="@+id/seekMusic"
+            android:id="@+id/Music"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100"
@@ -52,7 +52,7 @@
             android:textSize="16sp" />
 
         <SeekBar
-            android:id="@+id/seekSFX"
+            android:id="@+id/EfectosSonido"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100"
@@ -70,14 +70,14 @@
             android:layout_marginBottom="8dp" />
 
         <Spinner
-            android:id="@+id/spinnerDifficulty"
+            android:id="@+id/spinnerDificultad"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:backgroundTint="@android:color/white"
             android:layout_marginBottom="24dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
+            android:id="@+id/botonGuardar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ACEPTAR"

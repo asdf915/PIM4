@@ -15,14 +15,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.pim.databinding.ActivityBattleBinding
+import com.example.pim.databinding.ActivityCombateBinding
 import java.util.LinkedList
 import java.util.Queue
 import kotlin.math.abs
 
-class BattleActivity : AppCompatActivity() {
+class CombateActivity : AppCompatActivity() {
 
-    private lateinit var vistas: ActivityBattleBinding
+    private lateinit var vistas: ActivityCombateBinding
     private val filas = 8
     private val columnas = 6
     private var esTurnoJugador = true
@@ -56,16 +56,20 @@ class BattleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        vistas = ActivityBattleBinding.inflate(layoutInflater)
+        vistas = ActivityCombateBinding.inflate(layoutInflater)
         setContentView(vistas.root)
 
-        val nombreMapa = intent.getStringExtra("MAP_NAME") ?: "Mapa 1"
-        contraIA = intent.getBooleanExtra("VS_AI", true)
-        recursoMapaSeleccionado = when(nombreMapa) { "Mapa 2" -> R.drawable.mapa2; "Mapa 3" -> R.drawable.mapa3; else -> R.drawable.mapa1 }
-        vistas.imgBattleBackground.setImageResource(recursoMapaSeleccionado)
-        dificultad = getSharedPreferences("PIM_SETTINGS", Context.MODE_PRIVATE).getInt("DIFFICULTY", 1)
+        val nombreMapa = intent.getStringExtra("NOMBRE_MAPA") ?: "Mapa 1"
+        contraIA = intent.getBooleanExtra("CONTRA_IA", true)
+        recursoMapaSeleccionado = when(nombreMapa) { 
+            "Mapa 2" -> R.drawable.mapa2
+            "Mapa 3" -> R.drawable.mapa3
+            else -> R.drawable.mapa1 
+        }
+        vistas.imgfondoCombate.setImageResource(recursoMapaSeleccionado)
+        dificultad = getSharedPreferences("PIM_SETTINGS", Context.MODE_PRIVATE).getInt("DIFICULTAD", 1)
 
-        ViewCompat.setOnApplyWindowInsetsListener(vistas.battleRoot) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(vistas.combateRoot) { v, insets ->
             val barrasSistema = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(barrasSistema.left, barrasSistema.top, barrasSistema.right, barrasSistema.bottom)
             insets
@@ -74,32 +78,50 @@ class BattleActivity : AppCompatActivity() {
         configurarTablero()
         colocarUnidadesIniciales()
 
-        vistas.btnMove.setOnClickListener { iniciarModoInteraccion(ModoInteraccion.MOVIMIENTO) }
-        vistas.btnAttack.setOnClickListener { iniciarModoInteraccion(ModoInteraccion.ATAQUE) }
-        vistas.btnAction.setOnClickListener { iniciarModoInteraccion(ModoInteraccion.ACCION) }
-        vistas.btnWait.setOnClickListener { accionEsperar() }
-        vistas.btnEndTurn.setOnClickListener { cambiarTurno() }
+        vistas.btnMover.setOnClickListener { iniciarModoInteraccion(ModoInteraccion.MOVIMIENTO) }
+        vistas.btnAtacar.setOnClickListener { iniciarModoInteraccion(ModoInteraccion.ATAQUE) }
+        vistas.btnAccion.setOnClickListener { iniciarModoInteraccion(ModoInteraccion.ACCION) }
+        vistas.btnEsperar.setOnClickListener { accionEsperar() }
+        vistas.btnAcabarTurno.setOnClickListener { cambiarTurno() }
         actualizarVisibilidadBotones(null)
     }
 
     private fun configurarTablero() {
         val tamanoCasilla = (resources.displayMetrics.widthPixels - 60) / columnas
-        vistas.mapContainer.layoutParams = vistas.mapContainer.layoutParams.apply { width = tamanoCasilla * columnas; height = tamanoCasilla * filas }
+        vistas.mapContainer.layoutParams = vistas.mapContainer.layoutParams.apply { 
+            width = tamanoCasilla * columnas
+            height = tamanoCasilla * filas 
+        }
 
         for (i in 0 until filas * columnas) {
             val casilla = FrameLayout(this).apply {
-                layoutParams = GridLayout.LayoutParams().apply { width = tamanoCasilla; height = tamanoCasilla; rowSpec = GridLayout.spec(i / columnas); columnSpec = GridLayout.spec(i % columnas) }
+                layoutParams = GridLayout.LayoutParams().apply { 
+                    width = tamanoCasilla
+                    height = tamanoCasilla
+                    rowSpec = GridLayout.spec(i / columnas)
+                    columnSpec = GridLayout.spec(i % columnas) 
+                }
                 setOnClickListener { onCellClicked(i) }
             }
-            vistas.battleGrid.addView(casilla)
+            vistas.combateGrid.addView(casilla)
         }
     }
 
     private fun colocarUnidadesIniciales() {
         val tipos = TipoUnidad.values()
         when (recursoMapaSeleccionado) {
-            R.drawable.mapa2 -> { agregarUnidad(0, Color.RED, tipos[0]); agregarUnidad(1, Color.RED, tipos[1]); agregarUnidad(6, Color.RED, tipos[2]); agregarUnidad(7, Color.RED, tipos[3]) }
-            R.drawable.mapa3 -> { agregarUnidad(3, Color.RED, tipos[0]); agregarUnidad(4, Color.RED, tipos[1]); agregarUnidad(9, Color.RED, tipos[2]); agregarUnidad(10, Color.RED, tipos[3]) }
+            R.drawable.mapa2 -> { 
+                agregarUnidad(0, Color.RED, tipos[0])
+                agregarUnidad(1, Color.RED, tipos[1])
+                agregarUnidad(6, Color.RED, tipos[2])
+                agregarUnidad(7, Color.RED, tipos[3]) 
+            }
+            R.drawable.mapa3 -> { 
+                agregarUnidad(3, Color.RED, tipos[0])
+                agregarUnidad(4, Color.RED, tipos[1])
+                agregarUnidad(9, Color.RED, tipos[2])
+                agregarUnidad(10, Color.RED, tipos[3]) 
+            }
             else -> { for (i in 1..4) agregarUnidad(i, Color.RED, tipos[i-1]) }
         }
         for (i in 1..4) agregarUnidad((filas - 1) * columnas + i, Color.BLUE, tipos[i-1])
@@ -111,11 +133,14 @@ class BattleActivity : AppCompatActivity() {
     }
 
     private fun actualizarIUUnidad(indice: Int) {
-        val casilla = vistas.battleGrid.getChildAt(indice) as FrameLayout
+        val casilla = vistas.combateGrid.getChildAt(indice) as FrameLayout
         casilla.removeAllViews()
         mapaUnidades[indice]?.let { unidad ->
             casilla.addView(ImageView(this).apply {
-                layoutParams = FrameLayout.LayoutParams(-1, -1).apply { gravity = Gravity.CENTER; setMargins(8, 8, 8, 8) }
+                layoutParams = FrameLayout.LayoutParams(-1, -1).apply { 
+                    gravity = Gravity.CENTER
+                    setMargins(8, 8, 8, 8) 
+                }
                 setImageResource(unidad.tipo.recursoIcono)
                 setColorFilter(if (unidad.estaPotenciada) Color.MAGENTA else if (unidad.haTerminadoTurno) Color.GRAY else unidad.colorEquipo)
             })
@@ -130,27 +155,37 @@ class BattleActivity : AppCompatActivity() {
             ModoInteraccion.MOVIMIENTO -> {
                 if (indiceSeleccionado != null && casillasAlcanzables.contains(indice) && objetivo == null) moverUnidad(indiceSeleccionado, indice)
                 else Toast.makeText(this, "Inválido", Toast.LENGTH_SHORT).show()
-                limpiarResaltados(); modo = ModoInteraccion.NINGUNO; verificarTodasUnidadesTerminadas()
+                limpiarResaltados()
+                modo = ModoInteraccion.NINGUNO
+                verificarTodasUnidadesTerminadas()
             }
             ModoInteraccion.ATAQUE -> {
                 val atacante = indiceSeleccionado?.let { mapaUnidades[it] }
                 if (indiceSeleccionado != null && atacante != null && objetivo != null && objetivo.colorEquipo != atacante.colorEquipo && obtenerDistancia(indiceSeleccionado, indice) <= atacante.tipo.rangoAtaque) realizarAtaque(indiceSeleccionado, indice)
                 else Toast.makeText(this, "Fuera de rango", Toast.LENGTH_SHORT).show()
-                limpiarResaltados(); modo = ModoInteraccion.NINGUNO; verificarTodasUnidadesTerminadas()
+                limpiarResaltados()
+                modo = ModoInteraccion.NINGUNO
+                verificarTodasUnidadesTerminadas()
             }
             ModoInteraccion.ACCION -> {
                 if (indiceSeleccionado != null && obtenerDistancia(indiceSeleccionado, indice) == 1) realizarAccionSecundaria(indiceSeleccionado, indice)
                 else Toast.makeText(this, "Fuera de rango", Toast.LENGTH_SHORT).show()
-                limpiarResaltados(); modo = ModoInteraccion.NINGUNO; verificarTodasUnidadesTerminadas()
+                limpiarResaltados()
+                modo = ModoInteraccion.NINGUNO
+                verificarTodasUnidadesTerminadas()
             }
             else -> {
-                limpiarResaltados(); indiceCasillaSeleccionada = indice; resaltarCasilla(indice, Color.argb(120, 255, 255, 0))
+                limpiarResaltados()
+                indiceCasillaSeleccionada = indice
+                resaltarCasilla(indice, Color.argb(120, 255, 255, 0))
                 if (objetivo != null) {
                     val equipo = if (objetivo.colorEquipo == Color.BLUE) "P1" else if (contraIA) "IA" else "P2"
                     vistas.txtInfo.text = "${objetivo.tipo.nombreAMostrar} ($equipo)\nVida: ${objetivo.vidaActual}/${objetivo.tipo.vidaMax} | ATK: ${objetivo.tipo.ataque}${if (objetivo.estaPotenciada) " +10" else ""}"
-                    vistas.btnAction.text = objetivo.tipo.accionSecundaria; actualizarVisibilidadBotones(objetivo)
+                    vistas.btnAccion.text = objetivo.tipo.accionSecundaria
+                    actualizarVisibilidadBotones(objetivo)
                 } else {
-                    vistas.txtInfo.text = "Casilla: [${indice / columnas}, ${indice % columnas}]"; actualizarVisibilidadBotones(null)
+                    vistas.txtInfo.text = "Casilla: [${indice / columnas}, ${indice % columnas}]"
+                    actualizarVisibilidadBotones(null)
                 }
             }
         }
@@ -174,8 +209,13 @@ class BattleActivity : AppCompatActivity() {
 
     private fun moverUnidad(desde: Int, hasta: Int) {
         val u = mapaUnidades.remove(desde) ?: return
-        u.haMovido = true; mapaUnidades[hasta] = u; indiceCasillaSeleccionada = hasta
-        actualizarIUUnidad(desde); actualizarIUUnidad(hasta); actualizarVisibilidadBotones(u); resaltarCasilla(hasta, Color.argb(120, 255, 255, 0))
+        u.haMovido = true
+        mapaUnidades[hasta] = u
+        indiceCasillaSeleccionada = hasta
+        actualizarIUUnidad(desde)
+        actualizarIUUnidad(hasta)
+        actualizarVisibilidadBotones(u)
+        resaltarCasilla(hasta, Color.argb(120, 255, 255, 0))
     }
 
     private fun realizarAtaque(indiceAtacante: Int, indiceObjetivo: Int) {
@@ -183,9 +223,13 @@ class BattleActivity : AppCompatActivity() {
         val objetivo = mapaUnidades[indiceObjetivo] ?: return
         var daño = atacante.tipo.ataque + (if (atacante.estaPotenciada) 10 else 0)
         if (esBosque(indiceObjetivo)) daño = (daño * 0.7).toInt()
-        objetivo.vidaActual -= daño; atacante.haAtacado = true; atacante.haTerminadoTurno = true
+        objetivo.vidaActual -= daño
+        atacante.haAtacado = true
+        atacante.haTerminadoTurno = true
         if (objetivo.vidaActual <= 0) mapaUnidades.remove(indiceObjetivo)
-        actualizarIUUnidad(indiceAtacante); actualizarIUUnidad(indiceObjetivo); verificarFinJuego()
+        actualizarIUUnidad(indiceAtacante)
+        actualizarIUUnidad(indiceObjetivo)
+        verificarFinJuego()
     }
 
     private fun realizarAccionSecundaria(indiceActor: Int, indiceObjetivo: Int) {
@@ -193,37 +237,62 @@ class BattleActivity : AppCompatActivity() {
         val objetivo = mapaUnidades[indiceObjetivo] ?: return
         when (actor.tipo) {
             TipoUnidad.INFANTERIA -> if (objetivo.colorEquipo == actor.colorEquipo) objetivo.estaPotenciada = true
-            TipoUnidad.BAZOOKA -> if (objetivo.colorEquipo == actor.colorEquipo) { objetivo.haMovido = false; objetivo.haAtacado = false; objetivo.haTerminadoTurno = false }
+            TipoUnidad.BAZOOKA -> if (objetivo.colorEquipo == actor.colorEquipo) { 
+                objetivo.haMovido = false
+                objetivo.haAtacado = false
+                objetivo.haTerminadoTurno = false 
+            }
             TipoUnidad.TANQUE -> {
-                val filaN = (indiceObjetivo / columnas) * 2 - (indiceActor / columnas); val colN = (indiceObjetivo % columnas) * 2 - (indiceActor % columnas)
+                val filaN = (indiceObjetivo / columnas) * 2 - (indiceActor / columnas)
+                val colN = (indiceObjetivo % columnas) * 2 - (indiceActor % columnas)
                 if (filaN in 0 until filas && colN in 0 until columnas && mapaUnidades[filaN * columnas + colN] == null) {
-                    mapaUnidades.remove(indiceObjetivo); mapaUnidades[filaN * columnas + colN] = objetivo; actualizarIUUnidad(indiceObjetivo); actualizarIUUnidad(filaN * columnas + colN)
+                    mapaUnidades.remove(indiceObjetivo)
+                    mapaUnidades[filaN * columnas + colN] = objetivo
+                    actualizarIUUnidad(indiceObjetivo)
+                    actualizarIUUnidad(filaN * columnas + colN)
                 }
             }
             TipoUnidad.AVION -> if (objetivo.colorEquipo == actor.colorEquipo) objetivo.vidaActual = (objetivo.vidaActual + 40).coerceAtMost(objetivo.tipo.vidaMax)
         }
-        actor.haAtacado = true; actor.haTerminadoTurno = true; actualizarIUUnidad(indiceActor); actualizarIUUnidad(indiceObjetivo)
+        actor.haAtacado = true
+        actor.haTerminadoTurno = true
+        actualizarIUUnidad(indiceActor)
+        actualizarIUUnidad(indiceObjetivo)
     }
 
     private fun accionEsperar() {
         indiceCasillaSeleccionada?.let { indice ->
-            mapaUnidades[indice]?.let { it.haTerminadoTurno = true; actualizarIUUnidad(indice); actualizarVisibilidadBotones(it); verificarTodasUnidadesTerminadas() }
+            mapaUnidades[indice]?.let { 
+                it.haTerminadoTurno = true
+                actualizarIUUnidad(indice)
+                actualizarVisibilidadBotones(it)
+                verificarTodasUnidadesTerminadas() 
+            }
         }
     }
 
     private fun cambiarTurno() {
         esTurnoJugador = !esTurnoJugador
-        mapaUnidades.values.forEach { if (esEquipoActual(it)) { it.haMovido = false; it.haAtacado = false; it.haTerminadoTurno = false; it.estaPotenciada = false } }
+        mapaUnidades.values.forEach { if (esEquipoActual(it)) { 
+            it.haMovido = false
+            it.haAtacado = false
+            it.haTerminadoTurno = false
+            it.estaPotenciada = false 
+        } }
         for (i in 0 until filas * columnas) actualizarIUUnidad(i)
-        vistas.txtTurnPhase.text = if (esTurnoJugador) "Turno Jugador 1" else if (contraIA) "Turno IA" else "Turno Jugador 2"
-        vistas.txtTurnPhase.setTextColor(if (esTurnoJugador) Color.parseColor("#FFD700") else Color.RED)
-        limpiarResaltados(); indiceCasillaSeleccionada = null; actualizarVisibilidadBotones(null)
+        vistas.textFaseTurno.text = if (esTurnoJugador) "Turno Jugador 1" else if (contraIA) "Turno IA" else "Turno Jugador 2"
+        vistas.textFaseTurno.setTextColor(if (esTurnoJugador) Color.parseColor("#FFD700") else Color.RED)
+        limpiarResaltados()
+        indiceCasillaSeleccionada = null
+        actualizarVisibilidadBotones(null)
         if (!esTurnoJugador && contraIA) Handler(Looper.getMainLooper()).postDelayed({ ejecutarIAEnemiga() }, 1000)
     }
 
     private fun verificarTodasUnidadesTerminadas() {
         val color = if (esTurnoJugador) Color.BLUE else Color.RED
-        if (mapaUnidades.values.filter { it.colorEquipo == color }.all { it.haTerminadoTurno }) Handler(Looper.getMainLooper()).postDelayed({ cambiarTurno() }, 500)
+        if (mapaUnidades.values.filter { it.colorEquipo == color }.all { it.haTerminadoTurno }) {
+            Handler(Looper.getMainLooper()).postDelayed({ cambiarTurno() }, 500)
+        }
     }
 
     private fun ejecutarIAEnemiga() {
@@ -252,42 +321,59 @@ class BattleActivity : AppCompatActivity() {
     }
 
     private fun calcularCasillasAlcanzables(inicio: Int, rango: Int) {
-        casillasAlcanzables.clear(); val cola: Queue<Pair<Int, Int>> = LinkedList(); cola.add(inicio to 0); casillasAlcanzables.add(inicio)
+        casillasAlcanzables.clear()
+        val cola: Queue<Pair<Int, Int>> = LinkedList()
+        cola.add(inicio to 0)
+        casillasAlcanzables.add(inicio)
         val unidad = mapaUnidades[inicio] ?: return
         while (cola.isNotEmpty()) {
             val (actual, dist) = cola.poll()!!
             if (dist < rango) {
-                val r = actual / columnas; val c = actual % columnas
+                val r = actual / columnas
+                val c = actual % columnas
                 listOf(r-1 to c, r+1 to c, r to c-1, r to c+1).forEach { (nr, nc) ->
                     val nIndice = nr * columnas + nc
-                    if (nr in 0 until filas && nc in 0 until columnas && mapaUnidades[nIndice] == null && puedeEntrar(nIndice, unidad) && casillasAlcanzables.add(nIndice)) cola.add(nIndice to dist + 1)
+                    if (nr in 0 until filas && nc in 0 until columnas && mapaUnidades[nIndice] == null && puedeEntrar(nIndice, unidad) && casillasAlcanzables.add(nIndice)) {
+                        cola.add(nIndice to dist + 1)
+                    }
                 }
             }
         }
     }
 
     private fun puedeEntrar(i: Int, u: InstanciaUnidad) = !esMontana(i) && (u.tipo == TipoUnidad.AVION || !esAgua(i))
-    private fun esBosque(i: Int) = when(recursoMapaSeleccionado) { R.drawable.mapa1 -> bosqueMapa1.contains(i); R.drawable.mapa2 -> bosqueMapa2.contains(i); else -> bosqueMapa3.contains(i) }
+    private fun esBosque(i: Int) = when(recursoMapaSeleccionado) { 
+        R.drawable.mapa1 -> bosqueMapa1.contains(i)
+        R.drawable.mapa2 -> bosqueMapa2.contains(i)
+        else -> bosqueMapa3.contains(i) 
+    }
     private fun esAgua(i: Int) = (recursoMapaSeleccionado == R.drawable.mapa2 && aguaMapa2.contains(i)) || (recursoMapaSeleccionado == R.drawable.mapa3 && aguaMapa3.contains(i))
     private fun esMontana(i: Int) = recursoMapaSeleccionado == R.drawable.mapa3 && montanaMapa3.contains(i)
     private fun obtenerDistancia(i1: Int, i2: Int) = abs(i1 / columnas - i2 / columnas) + abs(i1 % columnas - i2 % columnas)
     private fun esEquipoActual(u: InstanciaUnidad) = if (esTurnoJugador) u.colorEquipo == Color.BLUE else u.colorEquipo == Color.RED
-    private fun resaltarCasilla(i: Int, c: Int) { (vistas.battleGrid.getChildAt(i) as FrameLayout).setBackgroundColor(c) }
+    private fun resaltarCasilla(i: Int, c: Int) { (vistas.combateGrid.getChildAt(i) as FrameLayout).setBackgroundColor(c) }
     private fun limpiarResaltados() { for (i in 0 until filas * columnas) resaltarCasilla(i, Color.TRANSPARENT) }
     private fun resaltarRango(centro: Int, rango: Int, color: Int) { for (i in 0 until filas * columnas) if (i != centro && obtenerDistancia(centro, i) <= rango) resaltarCasilla(i, color) }
 
     private fun actualizarVisibilidadBotones(u: InstanciaUnidad?) {
         val habilitado = u != null && !u.haTerminadoTurno && esEquipoActual(u)
-        vistas.btnMove.isEnabled = habilitado && !u!!.haMovido; vistas.btnAttack.isEnabled = habilitado && !u!!.haAtacado
-        vistas.btnAction.isEnabled = habilitado && !u!!.haAtacado; vistas.btnWait.isEnabled = habilitado
+        vistas.btnMover.isEnabled = habilitado && u != null && !u.haMovido
+        vistas.btnAtacar.isEnabled = habilitado && u != null && !u.haAtacado
+        vistas.btnAccion.isEnabled = habilitado && u != null && !u.haAtacado
+        vistas.btnEsperar.isEnabled = habilitado
     }
 
     private fun verificarFinJuego() {
-        val azul = mapaUnidades.values.any { it.colorEquipo == Color.BLUE }; val rojo = mapaUnidades.values.any { it.colorEquipo == Color.RED }
+        val azul = mapaUnidades.values.any { it.colorEquipo == Color.BLUE }
+        val rojo = mapaUnidades.values.any { it.colorEquipo == Color.RED }
         if (!rojo) terminarJuego("Jugador 1", Color.BLUE) else if (!azul) terminarJuego(if (contraIA) "IA" else "Jugador 2", Color.RED)
     }
 
     private fun terminarJuego(ganador: String, color: Int) {
-        startActivity(Intent(this, ResultActivity::class.java).apply { putExtra("WINNER", ganador); putExtra("COLOR", color) }); finish()
+        startActivity(Intent(this, ResultadoActivity::class.java).apply { 
+            putExtra("GANADOR", ganador)
+            putExtra("COLOR", color) 
+        })
+        finish()
     }
 }

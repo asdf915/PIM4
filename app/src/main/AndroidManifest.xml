@@ -20,13 +20,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MapSelectionActivity"
+            android:name=".MapasActivity"
             android:exported="false" />
         <activity
-            android:name=".BattleActivity"
+            android:name=".CombateActivity"
             android:exported="false" />
         <activity
-            android:name=".ResultActivity"
+            android:name=".ResultadoActivity"
             android:exported="false" />
     </application>
 

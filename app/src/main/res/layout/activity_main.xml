@@ -8,6 +8,7 @@
     android:background="@drawable/fondo"
     tools:context=".MainActivity">
 
+
     <TextView
         android:id="@+id/txtMainLogo"
         android:layout_width="wrap_content"
@@ -23,14 +24,16 @@
         app:layout_constraintVertical_bias="0.2" />
 
     <HorizontalScrollView
-        android:id="@+id/unitScroll"
+        android:id="@+id/unidadesDesfile"
         android:layout_width="match_parent"
         android:layout_height="100dp"
+        android:layout_marginBottom="80dp"
         android:scrollbars="none"
-        app:layout_constraintBottom_toTopOf="@id/btnStart">
+        app:layout_constraintBottom_toTopOf="@id/btnStart"
+        tools:layout_editor_absoluteX="0dp">
 
         <LinearLayout
-            android:id="@+id/unitContainer"
+            android:id="@+id/unidadesContainer"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center_vertical"
@@ -56,7 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
-        android:id="@+id/btnOptions"
+        android:id="@+id/btnOpciones"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_margin="16dp"

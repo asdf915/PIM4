@@ -8,26 +8,26 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.pim.databinding.ActivityMapSelectionBinding
+import com.example.pim.databinding.ActivityMapasBinding
 
-class MapSelectionActivity : AppCompatActivity() {
-    private lateinit var vistas: ActivityMapSelectionBinding
+class MapasActivity : AppCompatActivity() {
+    private lateinit var vistas: ActivityMapasBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        vistas = ActivityMapSelectionBinding.inflate(layoutInflater)
+        vistas = ActivityMapasBinding.inflate(layoutInflater)
         setContentView(vistas.root)
         
-        ViewCompat.setOnApplyWindowInsetsListener(vistas.root) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(vistas.MapasRoot) { v, insets ->
             val barrasSistema = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(barrasSistema.left, barrasSistema.top, barrasSistema.right, barrasSistema.bottom)
             insets
         }
 
-        vistas.cardMap1.setOnClickListener { mostrarSeleccionModo("Mapa 1") }
-        vistas.cardMap2.setOnClickListener { mostrarSeleccionModo("Mapa 2") }
-        vistas.cardMap3.setOnClickListener { mostrarSeleccionModo("Mapa 3") }
+        vistas.tarjetaMapa1.setOnClickListener { mostrarSeleccionModo("Mapa 1") }
+        vistas.tarjetaMapa2.setOnClickListener { mostrarSeleccionModo("Mapa 2") }
+        vistas.tarjetaMapa3.setOnClickListener { mostrarSeleccionModo("Mapa 3") }
     }
 
     private fun mostrarSeleccionModo(nombreMapa: String) {
@@ -40,13 +40,13 @@ class MapSelectionActivity : AppCompatActivity() {
 
     private fun iniciarBatalla(nombreMapa: String, esContraIA: Boolean) {
         try {
-            val intento = Intent(this, BattleActivity::class.java).apply {
-                putExtra("MAP_NAME", nombreMapa)
-                putExtra("VS_AI", esContraIA)
+            val intento = Intent(this, CombateActivity::class.java).apply {
+                putExtra("NOMBRE_MAPA", nombreMapa)
+                putExtra("CONTRA_IA", esContraIA)
             }
             startActivity(intento)
         } catch (e: Exception) {
-            Log.e("MapSelection", "Error al iniciar batalla", e)
+            Log.e("SeleccionMapa", "Error al iniciar batalla", e)
         }
     }
 }

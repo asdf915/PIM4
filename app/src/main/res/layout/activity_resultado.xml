@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/resultRoot"
+    android:id="@+id/resultadosRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#2C3E50"
@@ -9,7 +9,7 @@
     android:clipToPadding="false">
 
     <TextView
-        android:id="@+id/txtVictory"
+        android:id="@+id/txtVictoria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="VICTORIA"
@@ -22,7 +22,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <LinearLayout
-        android:id="@+id/danceFloor"
+        android:id="@+id/contenedorUnidades"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -30,12 +30,12 @@
         android:padding="32dp"
         android:clipChildren="false"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/txtVictory"
-        app:layout_constraintBottom_toTopOf="@id/btnBackToMenu">
+        app:layout_constraintTop_toBottomOf="@id/txtVictoria"
+        app:layout_constraintBottom_toTopOf="@id/btnvolver">
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnBackToMenu"
+        android:id="@+id/btnvolver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="VOLVER AL MENÚ"

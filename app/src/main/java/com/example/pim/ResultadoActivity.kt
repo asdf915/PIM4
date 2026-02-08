@@ -9,27 +9,27 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.pim.databinding.ActivityResultBinding
+import com.example.pim.databinding.ActivityResultadoBinding
 
-class ResultActivity : AppCompatActivity() {
+class ResultadoActivity : AppCompatActivity() {
 
-    private lateinit var vistas: ActivityResultBinding
+    private lateinit var vistas: ActivityResultadoBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        vistas = ActivityResultBinding.inflate(layoutInflater)
+        vistas = ActivityResultadoBinding.inflate(layoutInflater)
         setContentView(vistas.root)
 
-        val ganador = intent.getStringExtra("WINNER") ?: "Jugador 1"
+        val ganador = intent.getStringExtra("GANADOR") ?: "Jugador 1"
         val colorEquipo = intent.getIntExtra("COLOR", Color.BLUE)
 
-        vistas.txtVictory.text = "VICTORIA DE ${ganador.uppercase()}"
-        vistas.txtVictory.setTextColor(colorEquipo)
+        vistas.txtVictoria.text = "VICTORIA DE ${ganador.uppercase()}"
+        vistas.txtVictoria.setTextColor(colorEquipo)
 
         configurarBaile(colorEquipo)
 
-        vistas.btnBackToMenu.setOnClickListener {
+        vistas.btnvolver.setOnClickListener {
             val intento = Intent(this, MainActivity::class.java)
             intento.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             startActivity(intento)
@@ -45,13 +45,13 @@ class ResultActivity : AppCompatActivity() {
         )
 
         iconos.forEachIndexed { indice, recursoIcono ->
-            val bailarin = ImageView(this).apply {
+            val unidad = ImageView(this).apply {
                 setImageResource(recursoIcono)
                 setColorFilter(color)
                 layoutParams = LinearLayout.LayoutParams(150, 150).apply { marginEnd = 20 }
             }
-            vistas.danceFloor.addView(bailarin)
-            iniciarAnimacionBaile(bailarin, indice)
+            vistas.contenedorUnidades.addView(unidad)
+            iniciarAnimacionBaile(unidad, indice)
         }
     }
 

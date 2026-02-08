@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.pim.databinding.ActivityMainBinding
-import com.example.pim.databinding.DialogOptionsBinding
+import com.example.pim.databinding.OpcionesDialogoBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,28 +42,28 @@ class MainActivity : AppCompatActivity() {
 
         configurarDesfileUnidades()
 
-        vistas.btnOptions.setOnClickListener { mostrarDialogoOpciones() }
+        vistas.btnOpciones.setOnClickListener { mostrarDialogoOpciones() }
         vistas.btnStart.setOnClickListener {
-            startActivity(Intent(this, MapSelectionActivity::class.java))
+            startActivity(Intent(this, MapasActivity::class.java))
         }
     }
 
     private fun mostrarDialogoOpciones() {
         val dialogo = Dialog(this)
-        val vistasDialogo = DialogOptionsBinding.inflate(layoutInflater)
+        val vistasDialogo = OpcionesDialogoBinding.inflate(layoutInflater)
         dialogo.setContentView(vistasDialogo.root)
         dialogo.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         val dificultades = arrayOf("RECLUTA (Fácil)", "SOLDADO (Normal)", "VETERANO (Difícil)")
         val adaptador = ArrayAdapter(this, android.R.layout.simple_spinner_item, dificultades)
         adaptador.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        vistasDialogo.spinnerDifficulty.adapter = adaptador
+        vistasDialogo.spinnerDificultad.adapter = adaptador
 
         val preferencias = getSharedPreferences("PIM_SETTINGS", Context.MODE_PRIVATE)
-        vistasDialogo.spinnerDifficulty.setSelection(preferencias.getInt("DIFFICULTY", 1))
+        vistasDialogo.spinnerDificultad.setSelection(preferencias.getInt("DIFICULTAD", 1))
 
-        vistasDialogo.seekMusic.progress = (volumenMusica * 100).toInt()
-        vistasDialogo.seekMusic.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        vistasDialogo.Music.progress = (volumenMusica * 100).toInt()
+        vistasDialogo.Music.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progreso: Int, desdeUsuario: Boolean) {
                 volumenMusica = progreso / 100f
                 reproductor?.setVolume(volumenMusica, volumenMusica)
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        vistasDialogo.btnSave.setOnClickListener {
-            preferencias.edit().putInt("DIFFICULTY", vistasDialogo.spinnerDifficulty.selectedItemPosition).apply()
+        vistasDialogo.botonGuardar.setOnClickListener {
+            preferencias.edit().putInt("DIFICULTAD", vistasDialogo.spinnerDificultad.selectedItemPosition).apply()
             dialogo.dismiss()
         }
 
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun configurarDesfileUnidades() {
-        vistas.unitContainer.removeAllViews()
+        vistas.unidadesContainer.removeAllViews()
 
         val unidades = listOf(
             DatosUnidad(Color.RED, android.R.drawable.ic_menu_help),
@@ -110,10 +110,10 @@ class MainActivity : AppCompatActivity() {
                 setColorFilter(unidad.color)
                 layoutParams = LinearLayout.LayoutParams(120, 120).apply { marginEnd = 60 }
             }
-            vistas.unitContainer.addView(imagenUnidad)
+            vistas.unidadesContainer.addView(imagenUnidad)
         }
 
-        vistas.unitContainer.startAnimation(TranslateAnimation(
+        vistas.unidadesContainer.startAnimation(TranslateAnimation(
             Animation.RELATIVE_TO_PARENT, 1.0f, Animation.RELATIVE_TO_PARENT, -1.0f,
             Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f
         ).apply {
@@ -128,7 +128,7 @@ class MainActivity : AppCompatActivity() {
     private fun configurarMusica() {
         try {
             if (reproductor == null) {
-                reproductor = MediaPlayer.create(this, R.raw.war_theme).apply { isLooping = true }
+                reproductor = MediaPlayer.create(this, R.raw.musica_guerra).apply { isLooping = true }
             }
             reproductor?.setVolume(volumenMusica, volumenMusica)
             if (reproductor?.isPlaying == false) reproductor?.start()
